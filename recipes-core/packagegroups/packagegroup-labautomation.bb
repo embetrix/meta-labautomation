@@ -5,6 +5,7 @@ inherit packagegroup
 
 RDEPENDS:${PN} = " \
     gitlab-runner \
+    github-runner \
     openocd \
     dfu-util \
     python3-labgrid \
