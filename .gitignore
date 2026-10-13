@@ -1,0 +1,6 @@
+# kas checkouts and Yocto build output
+/layers/
+/build/
+/downloads/
+/sstate-cache/
+/.kas/
