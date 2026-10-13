@@ -30,6 +30,7 @@ repos:
       meta-python:
       meta-networking:
       meta-filesystems:
+      meta-webserver:
 
   meta-labgrid:
     url: https://github.com/labgrid-project/meta-labgrid.git
