@@ -1,0 +1,16 @@
+From: Embetrix <ayoub.zaki@embetrix.com>
+Subject: [PATCH] Do not require Cython for the pure Python build
+
+The recipe sets SKIP_CYTHON=1 to use the supported Python implementation.
+Remove the unconditional accelerator dependency so PEP 517 validation can
+build that configuration without Cython.
+
+Upstream-Status: Inappropriate [configuration]
+
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -1,3 +1,3 @@
+ [build-system]
+-requires = ['setuptools>=77.0', 'Cython', "poetry-core>=2.0.0"]
++requires = ['setuptools>=77.0', "poetry-core>=2.0.0"]
+ build-backend = "poetry.core.masonry.api"
