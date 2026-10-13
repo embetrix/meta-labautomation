@@ -1,0 +1,40 @@
+header:
+  version: 14
+
+machine: qemux86-64
+distro: nodistro
+target: labautomation-image
+
+repos:
+  meta-labautomation:
+
+  openembedded-core:
+    url: https://git.openembedded.org/openembedded-core
+    branch: wrynose
+    path: layers/openembedded-core
+    layers:
+      meta:
+
+  bitbake:
+    url: https://git.openembedded.org/bitbake
+    branch: "2.18"
+    path: layers/bitbake
+    layers: {}
+
+  meta-openembedded:
+    url: https://git.openembedded.org/meta-openembedded
+    branch: wrynose
+    path: layers/meta-openembedded
+    layers:
+      meta-oe:
+      meta-python:
+
+  meta-labgrid:
+    url: https://github.com/labgrid-project/meta-labgrid.git
+    branch: master
+    path: layers/meta-labgrid
+
+  meta-freescale:
+    url: https://github.com/Freescale/meta-freescale.git
+    branch: wrynose
+    path: layers/meta-freescale
