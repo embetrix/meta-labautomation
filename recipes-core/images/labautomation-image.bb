@@ -10,6 +10,7 @@ IMAGE_INSTALL = " \
     packagegroup-labautomation-security \
     packagegroup-labautomation-tools \
     packagegroup-labautomation-devel \
+    packagegroup-labautomation-middleware \
     packagegroup-labautomation-virtualization \
     packagegroup-labautomation-webserver \
     ${CORE_IMAGE_EXTRA_INSTALL} \
