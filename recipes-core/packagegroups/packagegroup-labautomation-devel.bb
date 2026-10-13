@@ -7,4 +7,5 @@ RDEPENDS:${PN} = " \
     gdb \
     gdbserver \
     strace \
+    stress-ng \
 "

@@ -14,4 +14,8 @@ RDEPENDS:${PN} = " \
     minicom \
     ttyd \
     can-utils \
+    socat \
+    rsync \
+    tcpdump \
+    i2c-tools \
 "

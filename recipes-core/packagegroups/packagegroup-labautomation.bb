@@ -4,6 +4,8 @@ LICENSE = "MIT"
 inherit packagegroup
 
 RDEPENDS:${PN} = " \
+    openocd \
+    dfu-util \
     python3-labgrid \
     python3-powerrelay \
     python3-usbsdmux \
