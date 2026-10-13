@@ -5,6 +5,8 @@ inherit packagegroup
 
 RDEPENDS:${PN} = " \
     bash \
+    bmap-writer \
+    bmaptool \
     curl \
     ethtool \
     iproute2 \
