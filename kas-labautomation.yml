@@ -50,3 +50,5 @@ repos:
 local_conf_header:
   virtualization: |
     DISTRO_FEATURES:append = " virtualization seccomp ipv6"
+  debug: |
+    EXTRA_IMAGE_FEATURES += "allow-empty-password empty-root-password allow-root-login"
