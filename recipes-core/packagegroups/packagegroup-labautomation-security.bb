@@ -6,6 +6,7 @@ inherit packagegroup
 RDEPENDS:${PN} = " \
     ca-certificates \
     wireguard-tools \
+    tailscale \
     packagegroup-core-ssh-openssh \
     python3-scapy \
     nmap \
