@@ -9,3 +9,10 @@ Yocto layer for lab test automation.
 ```sh
 kas build kas-labautomation.yml
 ```
+
+## Run in Qemu
+
+```sh
+kas shell kas-labautomation.yml \
+    -c 'runqemu kvm serialstdio nographic snapshot'
+```
