@@ -48,7 +48,6 @@ RDEPENDS:${PN} = " \
     libgssapi-krb5 \
     libstdc++ \
     libssl \
-    lttng-ust \
     zlib \
 "
 
@@ -56,6 +55,16 @@ do_install() {
     # Registration, logs, jobs and upstream updates require a writable runner home.
     install -d -m 0750 ${D}${localstatedir}/lib/github-runner
     cp -R --no-preserve=ownership ${S}/. ${D}${localstatedir}/lib/github-runner/
+
+    # The optional .NET LTTng provider requires liblttng-ust.so.0, while this
+    # release supplies liblttng-ust.so.1. The runner works without this provider;
+    # omit it rather than installing an incompatible tracing dependency.
+    rm -f ${D}${localstatedir}/lib/github-runner/bin/libcoreclrtraceptprovider.so
+
+    # Alpine Node.js runtimes require musl and cannot run on this glibc target.
+    # JavaScript actions in Alpine job containers are therefore not supported.
+    rm -rf ${D}${localstatedir}/lib/github-runner/externals/node*_alpine
+
     chown -R github-runner:github-runner ${D}${localstatedir}/lib/github-runner
 
     install -d ${D}${systemd_system_unitdir}
