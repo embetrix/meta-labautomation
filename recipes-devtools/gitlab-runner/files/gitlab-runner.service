@@ -1,0 +1,15 @@
+[Unit]
+Description=GitLab Runner
+Wants=network-online.target
+After=network-online.target docker.service
+ConditionPathExists=@SYSCONFDIR@/gitlab-runner/config.toml
+
+[Service]
+ExecStart=@BINDIR@/gitlab-runner run --config @SYSCONFDIR@/gitlab-runner/config.toml --working-directory @LOCALSTATEDIR@/lib/gitlab-runner --user gitlab-runner
+Restart=always
+RestartSec=5
+KillSignal=SIGQUIT
+TimeoutStopSec=7200
+
+[Install]
+WantedBy=multi-user.target

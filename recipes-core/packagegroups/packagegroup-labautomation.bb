@@ -4,6 +4,7 @@ LICENSE = "MIT"
 inherit packagegroup
 
 RDEPENDS:${PN} = " \
+    gitlab-runner \
     openocd \
     dfu-util \
     python3-labgrid \
