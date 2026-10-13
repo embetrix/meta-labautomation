@@ -7,4 +7,8 @@ RDEPENDS:${PN} = " \
     ca-certificates \
     wireguard-tools \
     packagegroup-core-ssh-openssh \
+    python3-scapy \
+    nmap \
+    ettercap \
+    tcpreplay \
 "
