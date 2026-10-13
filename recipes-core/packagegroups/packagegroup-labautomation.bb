@@ -8,6 +8,10 @@ RDEPENDS:${PN} = " \
     github-runner \
     openocd \
     dfu-util \
+    uhubctl \
+    python3-aioshelly \
+    python3-fritzconnection \
+    python3-swupdateclient \
     python3-labgrid \
     python3-powerrelay \
     python3-usbsdmux \

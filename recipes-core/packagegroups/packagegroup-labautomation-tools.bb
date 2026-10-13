@@ -20,4 +20,5 @@ RDEPENDS:${PN} = " \
     rsync \
     tcpdump \
     i2c-tools \
+    python3-swupdateclient \
 "
