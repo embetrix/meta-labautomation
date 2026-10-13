@@ -1,0 +1,20 @@
+From: Embetrix <ayoub.zaki@embetrix.com>
+Subject: [PATCH] Allow newer compatible termcolor releases
+
+The client uses the colored() API supported by termcolor 2.2 and 3.x.
+Remove the minor-version upper bound to allow the termcolor recipe in
+wrynose without downgrading the shared dependency.
+
+Upstream-Status: Pending
+
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -23,7 +23,7 @@
+ dependencies = [
+ 	"websockets",
+ 	"requests",
+-	"termcolor~=2.2.0"
++	"termcolor>=2.2.0"
+ ]
+ 
+ [build-system]
