@@ -1,0 +1,18 @@
+[Unit]
+Description=GitHub Actions Runner
+Wants=network-online.target
+After=network-online.target docker.service
+ConditionPathExists=@LOCALSTATEDIR@/lib/github-runner/.runner
+
+[Service]
+User=github-runner
+Group=github-runner
+WorkingDirectory=@LOCALSTATEDIR@/lib/github-runner
+ExecStart=@LOCALSTATEDIR@/lib/github-runner/bin/runsvc.sh
+Restart=always
+RestartSec=5
+KillMode=mixed
+TimeoutStopSec=300
+
+[Install]
+WantedBy=multi-user.target
