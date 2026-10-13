@@ -5,5 +5,6 @@ inherit packagegroup
 
 RDEPENDS:${PN} = " \
     ca-certificates \
+    wireguard-tools \
     packagegroup-core-ssh-openssh \
 "
