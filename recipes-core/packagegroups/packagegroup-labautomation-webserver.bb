@@ -5,5 +5,6 @@ inherit packagegroup
 
 RDEPENDS:${PN} = " \
     nginx \
+    python3-flask \
     tftp-hpa-server \
 "
