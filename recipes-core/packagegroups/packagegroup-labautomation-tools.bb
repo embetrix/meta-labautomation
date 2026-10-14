@@ -15,6 +15,7 @@ RDEPENDS:${PN} = " \
     uuu \
     minicom \
     ttyd \
+    tmux \
     can-utils \
     socat \
     rsync \
