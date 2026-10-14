@@ -6,6 +6,7 @@ inherit core-image
 
 IMAGE_INSTALL = " \
     packagegroup-core-boot \
+    labautomation-user \
     packagegroup-labautomation \
     packagegroup-labautomation-security \
     packagegroup-labautomation-tools \

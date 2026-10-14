@@ -1,0 +1,19 @@
+# Device permissions for lab automation, including headless SSH sessions.
+ACTION=="remove", GOTO="labautomation_end"
+
+# libusb tools: OpenOCD, dfu-util, uuu, labgrid, and USB relay/multiplexer tools.
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", GROUP="usb", MODE="0660"
+SUBSYSTEM=="hidraw", GROUP="plugdev", MODE="0660"
+
+# Local hardware buses. Serial ports and block devices use the standard
+# dialout and disk groups supplied by the default udev rules.
+SUBSYSTEM=="gpio", KERNEL=="gpiochip*", GROUP="gpio", MODE="0660"
+SUBSYSTEM=="i2c-dev", KERNEL=="i2c-*", GROUP="i2c", MODE="0660"
+SUBSYSTEM=="spidev", KERNEL=="spidev*", GROUP="spi", MODE="0660"
+
+# uhubctl uses the per-port sysfs power control on Linux 6.0 and newer.
+# Ports have no udev subsystem of their own; handle the parent hub interface.
+SUBSYSTEM=="usb", DRIVER=="hub", \
+    RUN+="@LIBEXECDIR@/labautomation-usb-hub-permissions /sys%p"
+
+LABEL="labautomation_end"

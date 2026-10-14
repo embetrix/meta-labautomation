@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Grant access to the port controls after the hub driver has created them.
+for control in "$1"/*-port*/disable; do
+    [ -f "$control" ] || continue
+    chgrp usb "$control"
+    chmod g+rw "$control"
+done
