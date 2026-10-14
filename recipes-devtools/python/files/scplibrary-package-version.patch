@@ -11,13 +11,14 @@ Signed-off-by: Ayoub Zaki <ayoub.zaki@embetrix.com>
 
 --- a/setup.py
 +++ b/setup.py
-@@ -1,5 +1,6 @@
+@@ -1,6 +1,7 @@
  from os import path
  from io import open
-+from runpy import run_path
  from setuptools import setup
++from runpy import run_path
  
  
+ here = path.abspath(path.dirname(__file__))
 @@ -15,7 +16,7 @@
      'url': 'https://www.tylercrumpton.com',
      'download_url': 'https://github.com/tylercrumpton/robotframework-scplibrary',
