@@ -1,10 +1,12 @@
-From: Embetrix <ayoub.zaki@embetrix.com>
+From: Ayoub Zaki <ayoub.zaki@embetrix.com>
 Subject: [PATCH] Limit package discovery to swupdateclient
 
 Explicit package discovery prevents build tooling directories, including
 quilt's patches directory, from being treated as top-level Python packages.
 
 Upstream-Status: Pending
+
+Signed-off-by: Ayoub Zaki <ayoub.zaki@embetrix.com>
 
 --- a/pyproject.toml
 +++ b/pyproject.toml

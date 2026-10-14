@@ -1,4 +1,4 @@
-From: Embetrix <ayoub.zaki@embetrix.com>
+From: Ayoub Zaki <ayoub.zaki@embetrix.com>
 Subject: [PATCH] Do not require Cython for the pure Python build
 
 The recipe sets SKIP_CYTHON=1 to use the supported Python implementation.
@@ -6,6 +6,8 @@ Remove the unconditional accelerator dependency so PEP 517 validation can
 build that configuration without Cython.
 
 Upstream-Status: Inappropriate [configuration]
+
+Signed-off-by: Ayoub Zaki <ayoub.zaki@embetrix.com>
 
 --- a/pyproject.toml
 +++ b/pyproject.toml
