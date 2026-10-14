@@ -7,12 +7,12 @@ Yocto layer for lab test automation.
 ## Build
 
 ```sh
-kas build kas-labautomation.yml
+kas build kas/kas-labautomation.yml
 ```
 
 ## Run in Qemu
 
 ```sh
-kas shell kas-labautomation.yml \
+kas shell kas/kas-labautomation.yml \
     -c 'runqemu kvm serialstdio nographic snapshot'
 ```
