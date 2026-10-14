@@ -1,0 +1,29 @@
+From: Ayoub Zaki <ayoub.zaki@embetrix.com>
+Subject: [PATCH] Read the package version from the bundled version module
+
+The source distribution includes _version.py but no Git metadata or
+version.txt for vcversioner. Read the bundled version without importing
+SCPLibrary, which would require target runtime dependencies at build time.
+
+Upstream-Status: Pending
+
+Signed-off-by: Ayoub Zaki <ayoub.zaki@embetrix.com>
+
+--- a/setup.py
++++ b/setup.py
+@@ -1,5 +1,6 @@
+ from os import path
+ from io import open
++from runpy import run_path
+ from setuptools import setup
+ 
+ 
+@@ -15,7 +16,7 @@
+     'url': 'https://www.tylercrumpton.com',
+     'download_url': 'https://github.com/tylercrumpton/robotframework-scplibrary',
+     'author_email': 'tyler.crumpton@gmail.com',
+-    'vcversioner': {'version_module_paths': ['SCPLibrary/_version.py']},
++    'version': run_path(path.join(here, 'SCPLibrary', '_version.py'))['__version__'],
+     'install_requires': ['scp', 'paramiko', 'six'],
+     'packages': ['SCPLibrary'],
+     'scripts': [],
