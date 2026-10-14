@@ -1,6 +1,9 @@
 SUMMARY = "Industrial protocols and messaging for lab automation"
 LICENSE = "MIT"
 
+# Library package names are dynamically renamed for the target architecture.
+PACKAGE_ARCH = "${TUNE_PKGARCH}"
+
 inherit packagegroup
 
 RDEPENDS:${PN} = " \
