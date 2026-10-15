@@ -4,8 +4,7 @@ LICENSE = "MIT"
 
 inherit core-image
 
-IMAGE_INSTALL = " \
-    packagegroup-core-boot \
+IMAGE_INSTALL:append = " \
     labautomation-user \
     packagegroup-labautomation \
     packagegroup-labautomation-security \
@@ -14,5 +13,4 @@ IMAGE_INSTALL = " \
     packagegroup-labautomation-middleware \
     packagegroup-labautomation-virtualization \
     packagegroup-labautomation-webserver \
-    ${CORE_IMAGE_EXTRA_INSTALL} \
 "
