@@ -1,0 +1,48 @@
+header:
+  version: 14
+  includes:
+    - kas-labautomation.yml
+
+machine: raspberrypi5
+distro: rpi-secure
+
+repos:
+  meta-raspberrypi-secure:
+    url: https://github.com/embetrix/meta-raspberrypi-secure.git
+    branch: wrynose
+    path: layers/meta-raspberrypi-secure
+
+  meta-security:
+    url: https://git.yoctoproject.org/meta-security
+    branch: wrynose
+    path: layers/meta-security
+    layers:
+      .:
+      meta-integrity:
+      meta-tpm:
+
+  meta-selinux:
+    url: https://git.yoctoproject.org/git/meta-selinux.git
+    branch: wrynose
+    path: layers/meta-selinux
+
+  meta-avb:
+    url: https://github.com/embetrix/meta-avb.git
+    branch: wrynose
+    path: layers/meta-avb
+
+  meta-swupdate:
+    url: https://github.com/sbabic/meta-swupdate.git
+    branch: wrynose
+    path: layers/meta-swupdate
+
+  meta-sca:
+    url: https://github.com/priv-kweihmann/meta-sca.git
+    branch: wrynose
+    path: layers/meta-sca
+
+local_conf_header:
+  raspberrypi: |
+    RPI_SECURITY_PROFILE = "dev"
+    ROOT_PART_SZ =  "4096M"
+    DATA_PART_SZ =  "8192M"
