@@ -53,6 +53,8 @@ repos:
     path: layers/meta-virtualization
 
 local_conf_header:
+  standard: |
+    INHERIT += "rm_work"
   virtualization: |
     DISTRO_FEATURES:append = " virtualization seccomp ipv6"
   debug: |
