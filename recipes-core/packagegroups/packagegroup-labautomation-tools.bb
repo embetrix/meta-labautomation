@@ -14,6 +14,8 @@ RDEPENDS:${PN} = " \
     usbutils \
     uuu \
     minicom \
+    picocom \
+    tio \
     ttyd \
     tmux \
     htop \
