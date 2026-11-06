@@ -41,8 +41,11 @@ repos:
     branch: wrynose
     path: layers/meta-sca
 
+env:
+  SECURITY_PROFILE: "dev"
+
 local_conf_header:
   raspberrypi: |
-    RPI_SECURITY_PROFILE = "dev"
+    RPI_SECURITY_PROFILE = "${SECURITY_PROFILE}"
     ROOT_PART_SZ =  "4096M"
     DATA_PART_SZ =  "8192M"
