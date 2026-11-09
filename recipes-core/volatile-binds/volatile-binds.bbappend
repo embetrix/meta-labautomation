@@ -1,17 +1,25 @@
-# Keep container storage on the persistent data partition.
+# Keep container storage, labgrid state/configuration, uploads and SSH keys
+# on the persistent data partition.
 VOLATILE_BINDS:append = "\
 ${localstatedir}/data${localstatedir}/lib/docker ${localstatedir}/lib/docker\n\
 ${localstatedir}/data${localstatedir}/lib/containerd ${localstatedir}/lib/containerd\n\
+${localstatedir}/data${localstatedir}/lib/private/labgrid-coordinator ${localstatedir}/lib/private/labgrid-coordinator\n\
+${localstatedir}/data${localstatedir}/cache/labgrid ${localstatedir}/cache/labgrid\n\
+${localstatedir}/data${sysconfdir}/labgrid ${sysconfdir}/labgrid\n\
+${localstatedir}/data/home/labautomation /home/labautomation\n\
 "
 
 do_compile:append() {
-    for name in docker containerd; do
-        # Mount after the parent /var/lib bind. Its writable tmpfs must not
-        # cause the persistent child binds to be skipped.
+    for path in lib/docker lib/containerd lib/private/labgrid-coordinator cache/labgrid; do
+        parent=${path%%/*}
+        name=$(echo "$path" | tr / -)
+
+        # Persistent children must follow the parent tmpfs bind, even when
+        # that parent has already made their destination writable.
         sed -i \
             -e '/^ConditionPathIsReadWrite=!/d' \
             -e 's/^Environment=MOUNT_COPYBIND_AVOID_OVERLAYFS=.*/Environment=MOUNT_COPYBIND_AVOID_OVERLAYFS=1/' \
-            -e '/^\[Unit\]/a Requires=var-volatile-lib.service\nAfter=var-volatile-lib.service' \
-            var-data-var-lib-$name.service
+            -e "/^\[Unit\]/a Requires=var-volatile-$parent.service\nAfter=var-volatile-$parent.service" \
+            var-data-var-$name.service
     done
 }
