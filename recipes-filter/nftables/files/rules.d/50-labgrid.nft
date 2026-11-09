@@ -1,2 +1,3 @@
-# Allow labgrid coordinator connections before the base input rules.
-insert rule inet filter input tcp dport 20408 accept
+# Allow labgrid coordinator TCP connections from private/local sources.
+insert rule inet filter input ip saddr { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 } tcp dport 20408 ct state new accept
+insert rule inet filter input ip6 saddr { fc00::/7, fe80::/10 } tcp dport 20408 ct state new accept
