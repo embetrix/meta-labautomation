@@ -1,0 +1,11 @@
+{
+  "devices": {
+    "outlet": {
+      "address": "YOUR_FRITZBOX_ADDRESS",
+      "port": 49000,
+      "username": "YOUR_FRITZ_USERNAME",
+      "ain": "YOUR_SOCKET_AIN",
+      "password_file": "/etc/labgrid/fritz-password"
+    }
+  }
+}
