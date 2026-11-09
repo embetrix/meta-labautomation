@@ -33,3 +33,8 @@ dut:
   USBSDMuxDevice:
     match:
       ID_SERIAL_SHORT: '000000001454'
+
+  NetworkPowerPort:
+    model: rest
+    host: 'http://127.0.0.1:20409/outlets/{index}'
+    index: 1
