@@ -10,11 +10,6 @@ SYSTEMD_PACKAGES = "${PN} ${PN}-coordinator"
 RDEPENDS:${PN}:append = " labautomation-user volatile-binds"
 
 do_install:append() {
-    sed -i \
-        -e 's/^After=network-online.target$/After=network.target/' \
-        -e '/^Wants=network-online.target$/d' \
-        ${D}${systemd_system_unitdir}/labgrid-exporter.service
-
     install -d ${D}${systemd_system_unitdir}/labgrid-exporter.service.d
     install -m 0644 ${UNPACKDIR}/exporter.conf ${D}${systemd_system_unitdir}/labgrid-exporter.service.d/10-labautomation.conf
     install -d ${D}${nonarch_libdir}/tmpfiles.d
