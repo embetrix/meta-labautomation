@@ -23,9 +23,8 @@ GROUPADD_PARAM:${PN} = " \
     --system kvm \
 "
 
-# A regular login account with a locked password until provisioned by an admin.
 USERADD_PARAM:${PN} = "--create-home --user-group --key HOME_MODE=0750 \
-    --home-dir /home/labautomation --shell /bin/sh --password '!' \
+    --home-dir /home/labautomation --shell /bin/sh \
     --groups plugdev,usb,dialout,disk,gpio,i2c,spi,docker,kvm labautomation"
 
 RDEPENDS:${PN} = "udev"
