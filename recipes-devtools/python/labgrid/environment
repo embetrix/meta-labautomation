@@ -1,0 +1,7 @@
+# systemd EnvironmentFile
+LABGRID_COORDINATOR_IP=127.0.0.1
+LABGRID_COORDINATOR_PORT=20408
+# Dual stack gRPC listener. Use 127.0.0.1 for a loopback-only coordinator.
+LABGRID_COORDINATOR_LISTEN_IP=[::]
+# Add --hostname <management-hostname> if the system hostname is not reachable.
+LABGRID_EXPORTER_ARGS="--isolated --name labgrid-exp"
