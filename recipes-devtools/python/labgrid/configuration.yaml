@@ -1,1 +1,35 @@
-{}
+# Commented example: replace the IDs and baud rate for your hardware, then
+# uncomment the group or merge its resources into an existing group.
+# Read matching properties on the exporter host (adjust device paths):
+#   udevadm info --query=property --name=/dev/ttyACM0
+#   udevadm info --query=property --name=/dev/sda
+#
+# example_dut:
+#   USBSerialPort:
+#     match:
+#       ID_SERIAL_SHORT: 'YOUR_UART_SERIAL'
+#       # Select a port on a multi-port USB adapter; keep the value quoted.
+#       ID_USB_INTERFACE_NUM: '00'
+#     speed: 115200
+#
+#   USBSDMuxDevice:
+#     match:
+#       ID_SERIAL_SHORT: 'YOUR_SDMUX_SERIAL'
+#
+# Match hardware IDs instead of ttyACM*/sd* numbers, which can change after reboot.
+# USBSDMuxDevice discovers the disk and /dev/sg* control paths automatically.
+# FRITZ! examples are provided by python3-labgrid-fritz in
+# /usr/share/labgrid-fritz/examples/
+# Copy /etc/labgrid/fritz.json.example to /etc/labgrid/fritz.json and replace
+# the placeholders with your router and socket settings before using it.
+
+dut:
+  USBSerialPort:
+    match:
+      ID_SERIAL_SHORT: '0123456789'
+      ID_USB_INTERFACE_NUM: '00'
+    speed: 115200
+
+  USBSDMuxDevice:
+    match:
+      ID_SERIAL_SHORT: '000000001454'
