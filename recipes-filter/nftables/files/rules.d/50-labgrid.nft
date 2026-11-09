@@ -1,0 +1,2 @@
+# Allow labgrid coordinator connections before the base input rules.
+insert rule inet filter input tcp dport 20408 accept
