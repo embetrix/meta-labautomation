@@ -1,0 +1,3 @@
+# Allow Fritz automation TCP connections to private/local destinations.
+insert rule inet filter output ip daddr { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 } tcp dport 49000 ct state new accept
+insert rule inet filter output ip6 daddr { fc00::/7, fe80::/10 } tcp dport 49000 ct state new accept
