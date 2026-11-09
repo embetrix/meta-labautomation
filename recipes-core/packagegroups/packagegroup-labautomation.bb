@@ -13,6 +13,7 @@ RDEPENDS:${PN} = " \
     python3-fritzconnection \
     python3-swupdateclient \
     python3-labgrid \
+    python3-labgrid-coordinator \
     python3-powerrelay \
     python3-usbsdmux \
     python3-snagboot \
