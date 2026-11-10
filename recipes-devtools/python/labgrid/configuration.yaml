@@ -20,8 +20,8 @@
 ## USBSDMuxDevice discovers the disk and /dev/sg* control paths automatically.
 ## FRITZ! examples are provided by python3-labgrid-fritz in
 ## /usr/share/labgrid-fritz/examples/
-## Copy /etc/labgrid/fritz.json.example to /etc/labgrid/fritz.json and replace
-## the placeholders with your router and socket settings before using it.
+## Configure your router and socket in /etc/labgrid/fritz.json and put the
+## router password in /etc/labgrid/fritz-password before using it.
 
 dut:
   USBSerialPort:

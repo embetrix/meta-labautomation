@@ -10,7 +10,8 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/labgrid:"
 
 SRC_URI = " \
     git://github.com/embetrix/labgrid-fritz.git;protocol=https;branch=main \
-    file://fritz.json.example \
+    file://fritz.json \
+    file://fritz-password \
 "
 SRCREV = "f001cc0605b0535777c41e4f6a288925bb8bbd55"
 
@@ -42,19 +43,27 @@ do_install:append() {
         ${D}${systemd_system_unitdir}/labgrid-fritz.service
 
     install -d ${D}${sysconfdir}/labgrid
-    install -m 0644 ${UNPACKDIR}/fritz.json.example \
-        ${D}${sysconfdir}/labgrid/fritz.json.example
+    install -m 0644 ${UNPACKDIR}/fritz.json \
+        ${D}${sysconfdir}/labgrid/fritz.json
+    install -m 0600 ${UNPACKDIR}/fritz-password \
+        ${D}${sysconfdir}/labgrid/fritz-password
 
     install -d ${D}${datadir}/labgrid-fritz/examples
-    install -m 0644 ${UNPACKDIR}/fritz.json.example \
+    install -m 0644 ${S}/examples/fritz.json.example \
         ${S}/examples/exporter.yaml \
         ${S}/examples/target.yaml \
         ${D}${datadir}/labgrid-fritz/examples/
 }
 
-# Ship configuration examples with the plugin, including images without -doc.
+# Ship configuration and examples with the plugin, including images without -doc.
 FILES:${PN} += " \
     ${systemd_system_unitdir}/labgrid-fritz.service \
-    ${sysconfdir}/labgrid/fritz.json.example \
+    ${sysconfdir}/labgrid/fritz.json \
+    ${sysconfdir}/labgrid/fritz-password \
     ${datadir}/labgrid-fritz/examples \
+"
+
+CONFFILES:${PN} += " \
+    ${sysconfdir}/labgrid/fritz.json \
+    ${sysconfdir}/labgrid/fritz-password \
 "
