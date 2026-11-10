@@ -7,6 +7,7 @@ inherit core-image
 IMAGE_INSTALL:append = " \
     labautomation-user \
     packagegroup-labautomation \
+    packagegroup-labautomation-ci \
     packagegroup-labautomation-robotframework \
     packagegroup-labautomation-security \
     packagegroup-labautomation-tools \
