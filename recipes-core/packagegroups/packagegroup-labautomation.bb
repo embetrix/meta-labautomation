@@ -6,6 +6,7 @@ inherit packagegroup
 RDEPENDS:${PN} = " \
     gitlab-runner \
     github-runner \
+    jenkins-agent \
     openocd \
     dfu-util \
     uhubctl \

@@ -1,0 +1,18 @@
+# Configure an inbound agent on your Jenkins controller, then fill these in.
+# Keep this file root-owned and mode 0600: it contains the agent secret.
+JENKINS_URL=
+JENKINS_AGENT_NAME=
+JENKINS_SECRET=
+
+# The Docker image is built on the Pi when the configured service starts.
+# Use a Debian-based inbound-agent tag or digest for BASE_IMAGE.
+JENKINS_AGENT_BASE_IMAGE=jenkins/inbound-agent:jdk21
+JENKINS_AGENT_IMAGE=labautomation/jenkins-agent:labgrid-26.0
+
+# Host networking lets the agent reach the Pi's existing coordinator.
+LG_COORDINATOR=127.0.0.1:20408
+
+# Set the Jenkins node's remote root directory to /home/jenkins/agent.
+# Configure SSH access to the labgrid exporter in /home/jenkins/.ssh inside
+# the container (including config, identity and verified known_hosts).
+# The Jenkins user runs jobs without root; its home and work volumes persist.

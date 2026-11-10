@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: MIT
+# Copyright 2026 Embetrix Embedded Systems Solutions <ayoub.zaki@embetrix.com>
+
+[Unit]
+Description=Jenkins inbound agent with labgrid in Docker
+Requires=docker.service
+Wants=network-online.target
+After=docker.service network-online.target
+ConditionPathExists=@SYSCONFDIR@/jenkins-agent/environment
+
+[Service]
+EnvironmentFile=@SYSCONFDIR@/jenkins-agent/environment
+# Leave the service inactive until registration settings have been supplied.
+ExecCondition=/bin/sh -c 'test -n "$${JENKINS_URL}" && test -n "$${JENKINS_AGENT_NAME}" && test -n "$${JENKINS_SECRET}"'
+ExecStartPre=@BINDIR@/docker build --build-arg BASE_IMAGE=${JENKINS_AGENT_BASE_IMAGE} --tag ${JENKINS_AGENT_IMAGE} @DATADIR@/jenkins-agent
+ExecStartPre=-@BINDIR@/docker rm -f jenkins-agent
+# Explicit child volumes override the base image's anonymous VOLUME entries.
+ExecStart=@BINDIR@/docker run --rm --init --name jenkins-agent \
+    --network host --add-host %H:127.0.0.1 \
+    --mount type=volume,source=jenkins-agent-home,target=/home/jenkins \
+    --mount type=volume,source=jenkins-agent-work,target=/home/jenkins/agent \
+    --mount type=volume,source=jenkins-agent-state,target=/home/jenkins/.jenkins \
+    --env JENKINS_SECRET --env LG_COORDINATOR \
+    ${JENKINS_AGENT_IMAGE} -url ${JENKINS_URL} -name ${JENKINS_AGENT_NAME} \
+    -webSocket -workDir /home/jenkins/agent
+ExecStop=@BINDIR@/docker stop --time 60 jenkins-agent
+Restart=always
+RestartSec=30
+TimeoutStartSec=0
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target

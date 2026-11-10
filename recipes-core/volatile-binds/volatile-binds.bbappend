@@ -6,6 +6,7 @@ ${localstatedir}/data${localstatedir}/lib/containerd ${localstatedir}/lib/contai
 ${localstatedir}/data${localstatedir}/lib/github-runner ${localstatedir}/lib/github-runner\n\
 ${localstatedir}/data${localstatedir}/lib/gitlab-runner ${localstatedir}/lib/gitlab-runner\n\
 ${localstatedir}/data${sysconfdir}/gitlab-runner ${sysconfdir}/gitlab-runner\n\
+${localstatedir}/data${sysconfdir}/jenkins-agent ${sysconfdir}/jenkins-agent\n\
 ${localstatedir}/data${localstatedir}/lib/private/labgrid-coordinator ${localstatedir}/lib/private/labgrid-coordinator\n\
 ${localstatedir}/data${localstatedir}/cache/labgrid ${localstatedir}/cache/labgrid\n\
 ${localstatedir}/data${sysconfdir}/labgrid ${sysconfdir}/labgrid\n\
