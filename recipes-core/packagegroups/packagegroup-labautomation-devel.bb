@@ -8,4 +8,5 @@ RDEPENDS:${PN} = " \
     gdbserver \
     strace \
     stress-ng \
+    iperf3 \
 "
