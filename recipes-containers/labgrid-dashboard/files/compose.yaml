@@ -12,7 +12,7 @@ services:
     env_file:
       - @SYSCONFDIR@/labgrid-dashboard/environment
     environment:
-      LABGRID_EXPORTER_HOST: "${LABGRID_EXPORTER_HOST:?Set LABGRID_EXPORTER_HOST to the local exported serial host}"
+      LABGRID_EXPORTER_HOST: "${LABGRID_EXPORTER_HOST:-${LABGRID_CONTROLLER_HOST:?Start through labgrid-dashboard.service or set LABGRID_EXPORTER_HOST}}"
     volumes:
       - api-data:/data
       - @SYSCONFDIR@/labgrid-dashboard/ssh:/root/.ssh:ro

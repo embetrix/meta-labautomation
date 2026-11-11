@@ -3,8 +3,8 @@
 LG_COORDINATOR_ADDRESS=127.0.0.1:20408
 LG_API_NAME=labautomation-dashboard
 
-# REQUIRED: the NetworkSerialPort 'host' shown by labgrid-client -vv resources.
-# It must identify this controller's local exporter; the API maps it to loopback for serial access.
+# Leave empty to use the controller hostname supplied by systemd
+# Override if the local exporter uses --hostname, matching the serial resource host
 LABGRID_EXPORTER_HOST=
 
 # REQUIRED: creates the first admin only when the dashboard database is empty.

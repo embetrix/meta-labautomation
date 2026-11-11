@@ -9,9 +9,10 @@ RequiresMountsFor=@SYSCONFDIR@/labgrid-dashboard /var/lib/docker
 Type=oneshot
 RemainAfterExit=yes
 WorkingDirectory=@DATADIR@/labgrid-dashboard
+Environment=LABGRID_CONTROLLER_HOST=%H
 EnvironmentFile=@SYSCONFDIR@/labgrid-dashboard/environment
-# Keep unprovisioned images inactive, without a build/restart loop.
-ExecCondition=/bin/sh -c 'test -n "$${LABGRID_EXPORTER_HOST}" && test -n "$${LG_INITIAL_ADMIN_PASSWORD}"'
+# Wait until the admin password is configured
+ExecCondition=/bin/sh -c 'test -n "$${LG_INITIAL_ADMIN_PASSWORD}"'
 ExecStartPre=@BINDIR@/docker compose --env-file @SYSCONFDIR@/labgrid-dashboard/environment build
 ExecStart=@BINDIR@/docker compose --env-file @SYSCONFDIR@/labgrid-dashboard/environment up --detach --wait --wait-timeout 120
 ExecStop=@BINDIR@/docker compose --env-file @SYSCONFDIR@/labgrid-dashboard/environment down --timeout 30
