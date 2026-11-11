@@ -52,24 +52,28 @@ RDEPENDS:${PN} = " \
 "
 
 do_install() {
-    # Registration, logs, jobs and upstream updates require a writable runner home.
-    install -d -m 0750 ${D}${localstatedir}/lib/github-runner
-    cp -R --no-preserve=ownership ${S}/. ${D}${localstatedir}/lib/github-runner/
+    # Keep the bundled runtimes out of the parent /var/lib tmpfs copy
+    install -d -m 0750 ${D}/opt/github-runner
+    cp -R --no-preserve=ownership ${S}/. ${D}/opt/github-runner/
+
+    # Preserve the runner home and registration paths
+    install -d ${D}${localstatedir}/lib
+    ln -s /opt/github-runner ${D}${localstatedir}/lib/github-runner
 
     # The optional .NET LTTng provider requires liblttng-ust.so.0, while this
     # release supplies liblttng-ust.so.1. The runner works without this provider;
     # omit it rather than installing an incompatible tracing dependency.
-    rm -f ${D}${localstatedir}/lib/github-runner/bin/libcoreclrtraceptprovider.so
+    rm -f ${D}/opt/github-runner/bin/libcoreclrtraceptprovider.so
 
     # Alpine Node.js runtimes require musl and cannot run on this glibc target.
     # JavaScript actions in Alpine job containers are therefore not supported.
-    rm -rf ${D}${localstatedir}/lib/github-runner/externals/node*_alpine
+    rm -rf ${D}/opt/github-runner/externals/node*_alpine
 
-    chown -R github-runner:github-runner ${D}${localstatedir}/lib/github-runner
+    chown -R github-runner:github-runner ${D}/opt/github-runner
 
     install -d ${D}${systemd_system_unitdir}
     sed -e 's|@LOCALSTATEDIR@|${localstatedir}|g' \
         ${UNPACKDIR}/github-runner.service > ${D}${systemd_system_unitdir}/github-runner.service
 }
 
-FILES:${PN} += "${localstatedir}/lib/github-runner"
+FILES:${PN} += "/opt/github-runner ${localstatedir}/lib/github-runner"
