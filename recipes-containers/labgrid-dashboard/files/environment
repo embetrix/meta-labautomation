@@ -1,0 +1,20 @@
+# Configure on the controller, then start labgrid-dashboard.service.
+# Root-owned, mode 0600. Use values valid in both systemd and Compose env files.
+LG_COORDINATOR_ADDRESS=127.0.0.1:20408
+LG_API_NAME=labautomation-dashboard
+
+# REQUIRED: the NetworkSerialPort 'host' shown by labgrid-client -vv resources.
+# It must identify this controller's local exporter; the API maps it to loopback for serial access.
+LABGRID_EXPORTER_HOST=
+
+# REQUIRED: creates the first admin only when the dashboard database is empty.
+# Use a unique password (16-72 UTF-8 bytes). Change passwords later in the web UI.
+LG_INITIAL_ADMIN_USERNAME=admin
+LG_INITIAL_ADMIN_PASSWORD=
+
+# Browser access is exclusively through the host nginx HTTPS server.
+LG_SESSION_COOKIE_SECURE=true
+LG_DATABASE_PATH=/data/coordinator_history.db
+LG_RECORDINGS_DIR=/data/recordings
+LG_RECORDING_RETENTION_DAYS=30
+LG_RECORDING_MAX_BYTES_PER_PLACE=1073741824

@@ -1,0 +1,22 @@
+[Unit]
+Description=Labgrid dashboard API and web containers
+Requires=docker.service
+Wants=network-online.target labgrid-coordinator.service
+After=docker.service network-online.target labgrid-coordinator.service
+RequiresMountsFor=@SYSCONFDIR@/labgrid-dashboard /var/lib/docker
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=@DATADIR@/labgrid-dashboard
+EnvironmentFile=@SYSCONFDIR@/labgrid-dashboard/environment
+# Keep unprovisioned images inactive, without a build/restart loop.
+ExecCondition=/bin/sh -c 'test -n "$${LABGRID_EXPORTER_HOST}" && test -n "$${LG_INITIAL_ADMIN_PASSWORD}"'
+ExecStartPre=@BINDIR@/docker compose --env-file @SYSCONFDIR@/labgrid-dashboard/environment build
+ExecStart=@BINDIR@/docker compose --env-file @SYSCONFDIR@/labgrid-dashboard/environment up --detach --wait --wait-timeout 120
+ExecStop=@BINDIR@/docker compose --env-file @SYSCONFDIR@/labgrid-dashboard/environment down --timeout 30
+TimeoutStartSec=0
+TimeoutStopSec=90
+
+[Install]
+WantedBy=multi-user.target

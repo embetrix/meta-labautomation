@@ -1,0 +1,87 @@
+From: Ayoub Zaki <ayoub.zaki@embetrix.com>
+Subject: [PATCH] Enforce acquired console resources and explicit place release
+
+Resolve serial resources only from the coordinator's acquired resource paths,
+including wildcard/renamed matches. Never fall back to a global name lookup.
+Disable automatic place release on console cleanup so an old browser session
+cannot release a later acquisition. Console/recording cleanup remains enabled.
+
+Upstream-Status: Pending
+Signed-off-by: Ayoub Zaki <ayoub.zaki@embetrix.com>
+
+--- a/coordinator/api/app/grpc_client.py
++++ b/coordinator/api/app/grpc_client.py
+@@ -402,15 +402,22 @@
+         return _place_to_model(place) if place else None
+ 
+     def get_resource(self, place_name: str, resource_name: str) -> ResourceModel | None:
+-        place = self.get_place(place_name)
+-        if place is None:
++        place = self._places.get(place_name)
++        if not self.connected or place is None or not place.acquired:
+             return None
+-        for m in place.matches:
+-            for r in self.get_resources():
+-                if r.exporter == m.exporter and r.group == m.group:
+-                    final_name = m.rename or r.name
+-                    if final_name == resource_name:
+-                        return r
++        if place.acquired != self.name and not place.acquired.endswith("/" + self.name):
++            return None
++        # Only resources actually locked by this place may be opened. Match
++        # patterns alone don't prove ownership; use labgrid's matching for renames.
++        for path in place.acquired_resources:
++            exporter, group, cls, name = path
++            match = place.getmatch(path)
++            if match is None or (match.rename or name) != resource_name:
++                continue
++            entry = self._resources.get(exporter, {}).get(group, {}).get(name)
++            if entry is None or entry.cls != cls or entry.acquired != place_name or not entry.avail:
++                continue
++            return _resource_to_model(exporter, group, name, entry)
+         return None
+ 
+     def get_resources(
+--- a/coordinator/api/app/routers/console.py
++++ b/coordinator/api/app/routers/console.py
+@@ -39,14 +39,7 @@
+         return
+ 
+     coord = websocket.app.state.coordinator
+-    resource = None
+-    if hasattr(coord, "get_resource"):
+-        resource = coord.get_resource(place_name, resource_name)
+-    if resource is None:
+-        for r in coord.get_resources():
+-            if r.name == resource_name:
+-                resource = r
+-                break
++    resource = coord.get_resource(place_name, resource_name)
+     if resource is None or resource.cls != "NetworkSerialPort":
+         await websocket.close(code=1011)
+         return
+--- a/coordinator/api/app/main.py
++++ b/coordinator/api/app/main.py
+@@ -147,20 +147,9 @@
+     app.state.coordinator = client
+     await client.start()
+ 
+-    async def _on_grace_expired(place: str, _resource: str) -> None:
+-        try:
+-            await place_acq_store.force_release(place)
+-            try:
+-                # We (this gRPC connection) hold the labgrid lock — no
+-                # fromuser needed; identity is validated by session.
+-                await client.release_place(place)
+-            except Exception as e:
+-                logger.warning("labgrid release on grace expired failed: %s", e)
+-        except Exception as e:
+-            logger.warning("on_grace_expired handler failed: %s", e)
+-
+     cmgr.on_session_dropped = make_on_session_dropped(rec_store)
+-    cmgr.on_grace_expired = _on_grace_expired
++    # Console disconnect only cleans up the serial session and recording.
++    # Place ownership changes exclusively through explicit release requests.
+ 
+     # Reconcile: any place labgrid thinks is acquired by an old instance of
+     # this API (matches "<hostname>/<api_name>" or just "<api_name>") but

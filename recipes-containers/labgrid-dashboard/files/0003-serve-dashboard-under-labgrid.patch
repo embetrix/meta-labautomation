@@ -1,0 +1,137 @@
+From: Ayoub Zaki <ayoub.zaki@embetrix.com>
+Subject: [PATCH] Serve the dashboard below /labgrid behind the existing HTTPS site
+
+Prefix built assets, router navigation, API calls, downloads and WebSockets.
+Respect the API root path when redirecting after optional OIDC login.
+
+Upstream-Status: Inappropriate [layer deployment configuration]
+
+Signed-off-by: Ayoub Zaki <ayoub.zaki@embetrix.com>
+
+--- a/coordinator/web/vite.config.ts
++++ b/coordinator/web/vite.config.ts
+@@ -2,6 +2,7 @@
+ import react from "@vitejs/plugin-react";
+ 
+ export default defineConfig({
++  base: "/labgrid/",
+   plugins: [react()],
+   server: {
+     proxy: {
+--- a/coordinator/web/src/main.tsx
++++ b/coordinator/web/src/main.tsx
+@@ -21,7 +21,7 @@
+     <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+     <ChakraProvider theme={theme}>
+       <QueryClientProvider client={queryClient}>
+-        <BrowserRouter>
++        <BrowserRouter basename={import.meta.env.BASE_URL}>
+           <AuthProvider>
+             <App />
+           </AuthProvider>
+--- a/coordinator/web/src/api/ws.ts
++++ b/coordinator/web/src/api/ws.ts
+@@ -19,7 +19,7 @@
+ 
+   const connect = useCallback(() => {
+     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+-    const wsUrl = `${protocol}//${window.location.host}/api/ws`;
++    const wsUrl = `${protocol}//${window.location.host}${import.meta.env.BASE_URL}api/ws`;
+ 
+     const ws = new WebSocket(wsUrl);
+     wsRef.current = ws;
+--- a/coordinator/web/src/api/console.ts
++++ b/coordinator/web/src/api/console.ts
+@@ -1,6 +1,6 @@
+ const WS_BASE = (() => {
+   const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+-  return `${proto}//${window.location.host}/api`;
++  return `${proto}//${window.location.host}${import.meta.env.BASE_URL}api`;
+ })();
+ 
+ export function consoleWebSocketUrl(place: string, resource: string): string {
+--- a/coordinator/web/src/components/DownloadEnvModal.tsx
++++ b/coordinator/web/src/components/DownloadEnvModal.tsx
+@@ -30,7 +30,7 @@
+   const strategy = useMemo(() => inferStrategy(resourceClasses), [resourceClasses]);
+   const showBadge = tier === "boot";
+ 
+-  const url = `/api/places/${encodeURIComponent(placeName)}/env-yaml?tier=${tier}`;
++  const url = `${import.meta.env.BASE_URL}api/places/${encodeURIComponent(placeName)}/env-yaml?tier=${tier}`;
+ 
+   useEffect(() => {
+     if (!isOpen) return;
+--- a/coordinator/api/app/routers/auth.py
++++ b/coordinator/api/app/routers/auth.py
+@@ -126,6 +126,6 @@
+             oidc_subject=info.subject,
+         )
+     sid = await store.create_session(user.id, ttl_seconds=settings.session_ttl_hours * 3600)
+-    response = RedirectResponse("/", status_code=307)
++    response = RedirectResponse(request.scope.get("root_path", "") + "/", status_code=307)
+     _set_cookie(response, sid)
+     return response
+--- a/coordinator/web/src/api/auth.ts
++++ b/coordinator/web/src/api/auth.ts
+@@ -1,4 +1,4 @@
+-const API_BASE = import.meta.env.VITE_API_URL || "/api";
++const API_BASE = import.meta.env.VITE_API_URL || `${import.meta.env.BASE_URL}api`;
+ 
+ async function request<T>(path: string, options?: RequestInit): Promise<T> {
+   const resp = await fetch(`${API_BASE}${path}`, {
+--- a/coordinator/web/src/api/boardHealth.ts
++++ b/coordinator/web/src/api/boardHealth.ts
+@@ -1,4 +1,4 @@
+-const API_BASE = import.meta.env.VITE_API_URL || "/api";
++const API_BASE = import.meta.env.VITE_API_URL || `${import.meta.env.BASE_URL}api`;
+ 
+ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+   const response = await fetch(`${API_BASE}${path}`, {
+--- a/coordinator/web/src/api/client.ts
++++ b/coordinator/web/src/api/client.ts
+@@ -1,4 +1,4 @@
+-const API_BASE = import.meta.env.VITE_API_URL || "/api";
++const API_BASE = import.meta.env.VITE_API_URL || `${import.meta.env.BASE_URL}api`;
+ 
+ async function request<T>(path: string, options?: RequestInit): Promise<T> {
+   const resp = await fetch(`${API_BASE}${path}`, {
+--- a/coordinator/web/src/api/deployments.ts
++++ b/coordinator/web/src/api/deployments.ts
+@@ -1,4 +1,4 @@
+-const API_BASE = import.meta.env.VITE_API_URL || "/api";
++const API_BASE = import.meta.env.VITE_API_URL || `${import.meta.env.BASE_URL}api`;
+ 
+ async function request<T>(path: string): Promise<T> {
+   const response = await fetch(`${API_BASE}${path}`, {
+--- a/coordinator/web/src/api/netbox.ts
++++ b/coordinator/web/src/api/netbox.ts
+@@ -1,4 +1,4 @@
+-const API_BASE = import.meta.env.VITE_API_URL || "/api";
++const API_BASE = import.meta.env.VITE_API_URL || `${import.meta.env.BASE_URL}api`;
+ 
+ async function request<T>(path: string): Promise<T> {
+   const resp = await fetch(`${API_BASE}${path}`, {
+--- a/coordinator/web/src/api/power.ts
++++ b/coordinator/web/src/api/power.ts
+@@ -1,4 +1,4 @@
+-const API_BASE = import.meta.env.VITE_API_URL || "/api";
++const API_BASE = import.meta.env.VITE_API_URL || `${import.meta.env.BASE_URL}api`;
+ 
+ async function request<T>(path: string, options?: RequestInit): Promise<T> {
+   const resp = await fetch(`${API_BASE}${path}`, {
+--- a/coordinator/web/src/api/recordings.ts
++++ b/coordinator/web/src/api/recordings.ts
+@@ -1,4 +1,4 @@
+-const API_BASE = import.meta.env.VITE_API_URL || "/api";
++const API_BASE = import.meta.env.VITE_API_URL || `${import.meta.env.BASE_URL}api`;
+ 
+ async function request<T>(path: string, options?: RequestInit): Promise<T> {
+   const resp = await fetch(`${API_BASE}${path}`, {
+--- a/coordinator/web/src/api/sdmux.ts
++++ b/coordinator/web/src/api/sdmux.ts
+@@ -1,4 +1,4 @@
+-const API_BASE = import.meta.env.VITE_API_URL || "/api";
++const API_BASE = import.meta.env.VITE_API_URL || `${import.meta.env.BASE_URL}api`;
+ 
+ async function request<T>(path: string, options?: RequestInit): Promise<T> {
+   const resp = await fetch(`${API_BASE}${path}`, {
