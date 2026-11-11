@@ -1,6 +1,8 @@
 The nginx proxy integration is enabled when `meta-raspberrypi-secure` is
-present and extends its existing HTTPS site. Other controller builds need
-their own HTTPS proxy configuration for the dashboard.
+present and extends its existing HTTPS site. It needs the secure layer
+version that includes `/etc/nginx/default-server.d/*.conf` in that site.
+Other controller builds need their own HTTPS proxy configuration for the
+dashboard.
 
 Run the nginx installation checks locally:
 
