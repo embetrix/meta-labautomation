@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 # Ship a pinned Docker build context; containers are built on the controller.
 SRCREV = "e1088e62c0f8cd4688c7e92262b16798f28a78ad"
 SRC_URI = " \
-    https://codeload.github.com/tfcollins/labgrid-plugins/tar.gz/${SRCREV};downloadfilename=labgrid-plugins-${SRCREV}.tar.gz \
+    git://github.com/tfcollins/labgrid-plugins.git;protocol=https;nobranch=1 \
     file://0001-configure-dashboard-for-labautomation.patch \
     file://0002-handle-telnet-serial-consoles.patch \
     file://0003-serve-dashboard-under-labgrid.patch \
@@ -16,9 +16,6 @@ SRC_URI = " \
     file://nginx.conf \
     file://labgrid-dashboard.service \
 "
-SRC_URI[sha256sum] = "d2839c13b9dda6c614a1189df564d6b2ff080dd72023856006d72dae01a4338c"
-S = "${UNPACKDIR}/labgrid-plugins-${SRCREV}"
-
 inherit allarch systemd features_check
 REQUIRED_DISTRO_FEATURES = "systemd"
 
