@@ -1,0 +1,14 @@
+# GPIO relay service, separate from labgrid-fritz
+host: 127.0.0.1
+port: 20410
+
+# No GPIO lines are requested until relays are configured
+relays: {}
+
+# Replace the empty mapping above for a connected GPIO relay
+# Use gpioinfo to find its line name and check the relay polarity
+# relays:
+#   "0":
+#     name: "YOUR_RELAY_LINE_NAME"
+#     active: high
+#     default: 0
