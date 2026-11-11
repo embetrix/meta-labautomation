@@ -14,7 +14,7 @@ pipeline {
         KAS_CLONE_DEPTH = "1"
         KAS_CONFIG = 'kas/kas-labautomation-rpi-secure.yml'
         KAS_MACHINE = "${params.MACHINE}"
-        KAS_TARGET = 'labautomation-image'
+        KAS_TARGET = 'labautomation-image labautomation-image-update'
         SECURITY_PROFILE = "${params.SECURITY_PROFILE}"
     }
 
@@ -43,8 +43,11 @@ pipeline {
         stage('Build-Image') {
             steps {
                 sh 'kas build "$KAS_CONFIG:kas/kas-signing-keys.yml"'
-                archiveArtifacts artifacts: "build/tmp/deploy/images/${params.MACHINE}/labautomation-image-${params.MACHINE}.rootfs-${params.SECURITY_PROFILE}_*.*",
-                                             excludes: "**/*.ext3,**/*.ext4,**/*.rootfs.wic,**/*.swu",
+                archiveArtifacts artifacts: [
+                                             "build/tmp/deploy/images/${params.MACHINE}/labautomation-image-${params.MACHINE}.rootfs-${params.SECURITY_PROFILE}_*.*",
+                                             "build/tmp/deploy/images/${params.MACHINE}/labautomation-image-update-${params.MACHINE}.rootfs-${params.SECURITY_PROFILE}_*.swu"
+                                             ].join(','),
+                                             excludes: "**/*.ext3,**/*.ext4,**/*.rootfs.wic",
                                              followSymlinks: false,
                                              fingerprint: true,
                                              onlyIfSuccessful: true
