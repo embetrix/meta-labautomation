@@ -2,7 +2,7 @@
 name: labgrid-dashboard
 services:
   api:
-    image: labautomation/labgrid-dashboard-api:e1088e62-3
+    image: labautomation/labgrid-dashboard-api:e1088e62-4
     build:
       context: ./source
       dockerfile: coordinator/api/Dockerfile

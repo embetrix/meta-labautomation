@@ -1,0 +1,49 @@
+From: Ayoub Zaki <ayoub.zaki@embetrix.com>
+Subject: [PATCH] Use direct access for the controller REST power relay
+
+The API uses host networking. Skip the isolated exporter's SSH tunnel
+only for loopback REST power resources whose proxy is the local exporter.
+Keep remote resources, forced proxies and acquisition checks unchanged.
+
+Upstream-Status: Inappropriate [layer deployment configuration]
+Signed-off-by: Ayoub Zaki <ayoub.zaki@embetrix.com>
+
+--- a/coordinator/api/sitecustomize.py
++++ b/coordinator/api/sitecustomize.py
+@@ -94,3 +94,36 @@
+     _patch_labgrid_client_power()
+ except Exception:
+     pass
++
++
++# The API shares the controller network and can reach its local REST relay
++def _patch_local_rest_power():
++    import os
++    from copy import copy
++    from urllib.parse import urlsplit
++
++    from labgrid.resource.power import NetworkPowerPort
++    from labgrid.util.proxy import ProxyManager
++
++    original = ProxyManager.get_host_and_port.__func__
++
++    @classmethod
++    def get_host_and_port(cls, resource, **kwargs):
++        local_host = os.environ.get("LABGRID_EXPORTER_HOST")
++        extra = getattr(resource, "extra", {})
++        if (
++            local_host
++            and isinstance(resource, NetworkPowerPort)
++            and resource.model == "rest"
++            and extra.get("proxy") == local_host
++            and urlsplit(resource.host).hostname in {"127.0.0.1", "::1", "localhost"}
++        ):
++            # Keep the coordinator resource and remote exporters unchanged
++            resource = copy(resource)
++            resource.extra = dict(extra, proxy_required=False)
++        return original(cls, resource, **kwargs)
++
++    ProxyManager.get_host_and_port = get_host_and_port
++
++
++_patch_local_rest_power()

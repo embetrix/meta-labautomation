@@ -11,6 +11,7 @@ SRC_URI = " \
     file://0002-handle-telnet-serial-consoles.patch \
     file://0003-serve-dashboard-under-labgrid.patch \
     file://0004-enforce-console-ownership.patch \
+    file://0005-connect-to-local-rest-power.patch \
     file://compose.yaml \
     file://environment \
     file://nginx.conf \
