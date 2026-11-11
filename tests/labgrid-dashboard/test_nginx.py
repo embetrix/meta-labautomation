@@ -5,7 +5,8 @@ import subprocess
 import tempfile
 
 repo = Path(__file__).resolve().parents[2]
-recipe = (repo / 'recipes-httpd/nginx/nginx_%.bbappend').read_text()
+nginx_dir = repo / 'dynamic-layers/raspberrypi-secure/recipes-httpd/nginx'
+recipe = (nginx_dir / 'nginx_%.bbappend').read_text()
 body = re.search(r'labgrid_dashboard_install_proxy\(\) \{\n(.*?)\n\}', recipe, re.S)[1]
 include = 'include /etc/nginx/labgrid-dashboard-location.conf;'
 
@@ -14,7 +15,7 @@ with tempfile.TemporaryDirectory(prefix='labgrid-nginx-test-') as tmp:
     site.parent.mkdir(parents=True)
     for key, value in {
         'D': tmp, 'sysconfdir': '/etc',
-        'UNPACKDIR': str(repo / 'recipes-httpd/nginx/files'),
+        'UNPACKDIR': str(nginx_dir / 'files'),
     }.items():
         body = body.replace('${' + key + '}', value)
     def install():

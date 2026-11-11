@@ -1,3 +1,7 @@
+The nginx proxy integration is enabled when `meta-raspberrypi-secure` is
+present and extends its existing HTTPS site. Other controller builds need
+their own HTTPS proxy configuration for the dashboard.
+
 Run the nginx installation checks locally:
 
 ```sh
