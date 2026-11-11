@@ -34,6 +34,11 @@ dut:
     match:
       ID_SERIAL_SHORT: '000000001454'
 
+  IMXUSBLoader:
+    match:
+      ID_VENDOR_ID: '1fc9'
+      ID_MODEL_ID: '015d'
+
   NetworkPowerPort:
     model: rest
     host: 'http://127.0.0.1:20409/outlets/{index}'
