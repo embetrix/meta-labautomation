@@ -5,6 +5,9 @@ header:
 
 machine: raspberrypi5
 distro: rpi-secure
+target:
+  - labautomation-image
+  - labautomation-image-update
 
 repos:
   meta-raspberrypi-secure:
