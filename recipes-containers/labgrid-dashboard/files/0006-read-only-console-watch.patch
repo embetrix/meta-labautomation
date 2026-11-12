@@ -1,0 +1,359 @@
+From: Ayoub Zaki <ayoub.zaki@embetrix.com>
+Subject: [PATCH] Watch acquired serial consoles without taking ownership
+
+Add an authenticated read-only watch for the local exporter's acquired UARTs.
+Use ser2net's existing multiple-connection support to observe PC-owned places.
+Discard all browser input on the server and keep writable consoles owner-only.
+Close slow observers and end watches when acquisition or login expires.
+
+Upstream-Status: Pending
+Signed-off-by: Ayoub Zaki <ayoub.zaki@embetrix.com>
+
+--- /dev/null
++++ b/coordinator/api/app/console/watch.py
+@@ -0,0 +1,52 @@
++"""Read-only serial observation with bounded buffering for slow browsers."""
++
++from __future__ import annotations
++
++import asyncio
++
++from .session import ConsoleSession
++
++
++class WatchSession(ConsoleSession):
++    async def watch(self, ws, still_acquired, authorized):
++        # Keep draining ser2net so a slow browser cannot stall the owner's UART
++        output = asyncio.Queue(maxsize=64)
++
++        async def read_serial():
++            while still_acquired():
++                data = await self._reader.read(4096)
++                if not data:
++                    return
++                try:
++                    output.put_nowait(data)
++                except asyncio.QueueFull:
++                    return
++
++        async def send_output():
++            while True:
++                data = await output.get()
++                if not still_acquired():
++                    return
++                await ws.send_bytes(data)
++
++        async def discard_input():
++            # Never forward browser bytes, Telnet commands or control messages
++            while True:
++                if (await ws.receive())["type"] == "websocket.disconnect":
++                    return
++
++        async def check_access():
++            while await authorized():
++                await asyncio.sleep(0.5)
++
++        tasks = [asyncio.create_task(coro()) for coro in
++                 (read_serial, send_output, discard_input, check_access)]
++        try:
++            done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
++            for task in done:
++                task.result()
++        finally:
++            for task in tasks:
++                task.cancel()
++            await asyncio.gather(*tasks, return_exceptions=True)
++            await self.close()
+--- a/coordinator/api/app/grpc_client.py
++++ b/coordinator/api/app/grpc_client.py
+@@ -34,6 +34,12 @@
+ 
+ def _place_to_model(place: Place) -> PlaceModel:
+     d = place.asdict()
++    watch_resources = []
++    if place.acquired:
++        for path in place.acquired_resources:
++            match = place.getmatch(path)
++            if path[2] == "NetworkSerialPort" and match is not None:
++                watch_resources.append(match.rename or path[3])
+     return PlaceModel(
+         name=place.name,
+         aliases=d["aliases"],
+@@ -51,6 +57,7 @@
+         ],
+         acquired=d["acquired"],
+         acquired_resources=d["acquired_resources"],
++        watch_resources=watch_resources,
+         allowed=d["allowed"],
+         created=d["created"],
+         changed=d["changed"],
+@@ -407,6 +414,13 @@
+             return None
+         if place.acquired != self.name and not place.acquired.endswith("/" + self.name):
+             return None
++        return self.get_acquired_resource(place_name, resource_name)
++
++    def get_acquired_resource(self, place_name: str, resource_name: str) -> ResourceModel | None:
++        """Resolve a locked resource for observation, regardless of the owner."""
++        place = self._places.get(place_name)
++        if not self.connected or place is None or not place.acquired:
++            return None
+         # Only resources actually locked by this place may be opened. Match
+         # patterns alone don't prove ownership; use labgrid's matching for renames.
+         for path in place.acquired_resources:
+--- a/coordinator/api/app/main.py
++++ b/coordinator/api/app/main.py
+@@ -144,6 +144,7 @@
+         name=settings.api_name,
+     )
+     client.recorder = recorder
++    app.state.console_watchers = set()
+     app.state.coordinator = client
+     await client.start()
+ 
+--- a/coordinator/api/app/models.py
++++ b/coordinator/api/app/models.py
+@@ -21,6 +21,7 @@
+     matches: list[ResourceMatchModel] = []
+     acquired: str | None = None
+     acquired_resources: list[list[str]] = []
++    watch_resources: list[str] = []
+     allowed: list[str] = []
+     created: float = 0.0
+     changed: float = 0.0
+--- a/coordinator/api/app/routers/console.py
++++ b/coordinator/api/app/routers/console.py
+@@ -1,5 +1,6 @@
+ from __future__ import annotations
+ 
++import asyncio
+ import logging
+ import os
+ 
+@@ -8,6 +9,7 @@
+ 
+ from ..config import settings
+ from ..console.manager import ConsoleManager
++from ..console.watch import WatchSession
+ from ..places.store import PlaceAcquisitionStore
+ from ..recordings.writer import CastWriter
+ 
+@@ -108,3 +110,70 @@
+         logger.warning("console run error: %s", e)
+     finally:
+         mgr.arm_grace(place_name, resource_name)
++
++
++@router.websocket("/places/{place_name}/resources/{resource_name}/watch")
++async def watch_ws(websocket: WebSocket, place_name: str, resource_name: str):
++    sid = websocket.cookies.get(settings.session_cookie_name)
++    auth_store = websocket.app.state.auth_store
++    user = await auth_store.resolve_session(sid) if sid else None
++    if user is None:
++        await websocket.close(code=1008)
++        return
++
++    coord = websocket.app.state.coordinator
++    resource = coord.get_acquired_resource(place_name, resource_name)
++    if resource is None or resource.cls != "NetworkSerialPort":
++        await websocket.close(code=4403)
++        return
++
++    # Observation is supported for this controller's exporter
++    host = resource.params.get("host")
++    if host and host == os.environ.get("LABGRID_EXPORTER_HOST"):
++        host = "127.0.0.1"
++    if host not in ("127.0.0.1", "::1", "localhost"):
++        await websocket.close(code=4403)
++        return
++    port = resource.params.get("port")
++    if not isinstance(port, int) or not 0 < port < 65536:
++        await websocket.close(code=1011)
++        return
++
++    # Reserve one observer connection per UART, leaving room for the owner
++    key = (resource.exporter, resource.group, resource.name)
++    watchers = websocket.app.state.console_watchers
++    if key in watchers:
++        await websocket.close(code=4409)
++        return
++    watchers.add(key)
++    owner = coord.get_place(place_name).acquired
++    snapshot = resource.model_dump()
++
++    def still_acquired():
++        place = coord.get_place(place_name)
++        current = coord.get_acquired_resource(place_name, resource_name)
++        return (place is not None and place.acquired == owner
++                and current is not None and current.model_dump() == snapshot)
++
++    async def authorized():
++        return still_acquired() and await auth_store.resolve_session(sid) is not None
++
++    session = WatchSession(
++        host=host, port=port, protocol=resource.params.get("protocol", "rfc2217")
++    )
++    try:
++        await asyncio.wait_for(session.connect(), timeout=5)
++        if not await authorized():
++            await websocket.close(code=4403)
++            return
++        await websocket.accept()
++        await session.watch(websocket, still_acquired, authorized)
++    except (WebSocketDisconnect, OSError, ValueError, TimeoutError) as e:
++        logger.info("console watch ended: %s", e)
++    finally:
++        await session.close()
++        watchers.discard(key)
++        try:
++            await websocket.close()
++        except (RuntimeError, OSError):
++            pass
+--- a/coordinator/web/src/api/client.ts
++++ b/coordinator/web/src/api/client.ts
+@@ -31,6 +31,7 @@
+   matches: ResourceMatch[];
+   acquired: string | null;
+   acquired_resources: string[][];
++  watch_resources?: string[];
+   allowed: string[];
+   created: number;
+   changed: number;
+--- a/coordinator/web/src/api/console.ts
++++ b/coordinator/web/src/api/console.ts
+@@ -3,6 +3,6 @@
+   return `${proto}//${window.location.host}${import.meta.env.BASE_URL}api`;
+ })();
+ 
+-export function consoleWebSocketUrl(place: string, resource: string): string {
+-  return `${WS_BASE}/places/${encodeURIComponent(place)}/resources/${encodeURIComponent(resource)}/console`;
++export function consoleWebSocketUrl(place: string, resource: string, readOnly = false): string {
++  return `${WS_BASE}/places/${encodeURIComponent(place)}/resources/${encodeURIComponent(resource)}/${readOnly ? "watch" : "console"}`;
+ }
+--- a/coordinator/web/src/components/XTermView.tsx
++++ b/coordinator/web/src/components/XTermView.tsx
+@@ -5,16 +5,18 @@
+ 
+ interface Props {
+   wsUrl: string;
++  readOnly?: boolean;
+   onClose?: (code: number) => void;
+ }
+ 
+-export default function XTermView({ wsUrl, onClose }: Props) {
++export default function XTermView({ wsUrl, onClose, readOnly = false }: Props) {
+   const containerRef = useRef<HTMLDivElement>(null);
+ 
+   useEffect(() => {
+     if (!containerRef.current) return;
+     const term = new Terminal({
+-      cursorBlink: true,
++      cursorBlink: !readOnly,
++      disableStdin: readOnly,
+       fontFamily: "monospace",
+       fontSize: 13,
+       theme: { background: "#1a1a1a" },
+@@ -35,13 +37,16 @@
+       }
+     };
+     ws.onclose = (ev) => {
+-      term.write(`\r\n[connection closed: ${ev.code}]\r\n`);
++      const reason = ev.code === 4409 ? "another watch is already open"
++        : ev.code === 4403 ? "place unavailable or exporter is not local"
++        : ev.code === 1008 ? "login required" : `connection closed: ${ev.code}`;
++      term.write(`\r\n[${reason}]\r\n`);
+       onClose?.(ev.code);
+     };
+ 
+     const enc = new TextEncoder();
+     const onData = (data: string) => {
+-      if (ws.readyState === WebSocket.OPEN) {
++      if (!readOnly && ws.readyState === WebSocket.OPEN) {
+         ws.send(enc.encode(data));
+       }
+     };
+@@ -55,7 +60,7 @@
+       ws.close();
+       term.dispose();
+     };
+-  }, [wsUrl, onClose]);
++  }, [wsUrl, onClose, readOnly]);
+ 
+   return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
+ }
+--- a/coordinator/web/src/pages/Console.tsx
++++ b/coordinator/web/src/pages/Console.tsx
+@@ -1,4 +1,4 @@
+-import { useParams, Link as RLink, useNavigate } from "react-router-dom";
++import { useParams, Link as RLink, useNavigate, useSearchParams } from "react-router-dom";
+ import { Box, HStack, IconButton, Text, Button } from "@chakra-ui/react";
+ import { MdArrowBack } from "react-icons/md";
+ import XTermView from "../components/XTermView";
+@@ -7,7 +7,9 @@
+ export default function Console() {
+   const { name = "", resource = "" } = useParams();
+   const nav = useNavigate();
+-  const url = consoleWebSocketUrl(name, resource);
++  const [params] = useSearchParams();
++  const readOnly = params.get("watch") === "1";
++  const url = consoleWebSocketUrl(name, resource, readOnly);
+   return (
+     <Box h="calc(100vh - 56px)" display="flex" flexDirection="column">
+       <HStack p={2} bg="gray.800" color="white">
+@@ -17,15 +19,15 @@
+         />
+         <Text fontSize="sm">{name} / {resource}</Text>
+         <HStack spacing={1} ml={4}>
+-          <Box w="8px" h="8px" borderRadius="full" bg="red.400" />
+-          <Text fontSize="xs">Recording</Text>
++          {!readOnly && <Box w="8px" h="8px" borderRadius="full" bg="red.400" />}
++          <Text fontSize="xs">{readOnly ? "Read-only watch · live output only" : "Recording"}</Text>
+         </HStack>
+         <Button ml="auto" size="xs" variant="outline" colorScheme="whiteAlpha" onClick={() => nav(0)}>
+           Reconnect
+         </Button>
+       </HStack>
+       <Box flex={1} bg="#1a1a1a" p={2}>
+-        <XTermView wsUrl={url} />
++        <XTermView wsUrl={url} readOnly={readOnly} />
+       </Box>
+     </Box>
+   );
+--- a/coordinator/web/src/pages/PlaceDetail.tsx
++++ b/coordinator/web/src/pages/PlaceDetail.tsx
+@@ -184,9 +184,9 @@
+ 
+   if (isLoading || !place) return <Spinner />;
+ 
+-  const owner = place.acquired_username;
+-  const isOwner = owner != null && user?.username === owner;
+-  const canAcquire = owner == null && user != null;
++  const owner = place.acquired_username ?? place.acquired;
++  const isOwner = place.acquired_username != null && user?.username === place.acquired_username;
++  const canAcquire = place.acquired == null && user != null;
+   const canEdit = user != null && (owner == null || isOwner || user.role === "admin");
+ 
+   const submitMatch = () => {
+@@ -295,6 +295,22 @@
+           </Table>
+         )}
+ 
++        {user && place.acquired && (place.watch_resources ?? []).length > 0 && (
++          <Box mb={4}>
++            <Text fontSize="sm" mb={2}>
++              Watch live serial output without acquiring the place. Input is disabled.
++              One watch per serial port can be open at a time.
++            </Text>
++            <HStack wrap="wrap">
++              {(place.watch_resources ?? []).map((serial) => (
++                <Button key={serial} as={RLink} size="sm"
++                  to={`/places/${encodeURIComponent(name)}/console/${encodeURIComponent(serial)}?watch=1`}>
++                  Watch console: {serial}
++                </Button>
++              ))}
++            </HStack>
++          </Box>
++        )}
+         <Heading size="sm" mb={2}>Resources</Heading>
+         {placeResources.length === 0 ? (
+           <Text color="text.secondary" fontSize="sm">
