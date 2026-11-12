@@ -1,4 +1,4 @@
-SUMMARY = "Development and debugging tools for lab automation"
+SUMMARY = "Debugging and stress testing for lab automation"
 LICENSE = "MIT"
 
 inherit packagegroup
@@ -8,5 +8,4 @@ RDEPENDS:${PN} = " \
     gdbserver \
     strace \
     stress-ng \
-    iperf3 \
 "

@@ -5,7 +5,6 @@ inherit packagegroup
 
 RDEPENDS:${PN} = " \
     nginx \
-    labgrid-dashboard \
     python3-flask \
     tftp-hpa-server \
 "

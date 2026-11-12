@@ -8,8 +8,4 @@ RDEPENDS:${PN} = " \
     jenkins-agent \
 "
 
-# Github runner is huuuuge !! 
-# disable it for now
-# RDEPENDS:${PN} = " \
-#     github-runner \
-# "
+# Add github-runner to IMAGE_INSTALL when needed

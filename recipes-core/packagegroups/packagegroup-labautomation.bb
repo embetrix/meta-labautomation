@@ -1,21 +1,22 @@
-SUMMARY = "Packages for lab automation"
+SUMMARY = "All lab automation package groups"
 LICENSE = "MIT"
 
 inherit packagegroup
 
 RDEPENDS:${PN} = " \
-    openocd \
-    dfu-util \
-    uhubctl \
-    python3-aioshelly \
-    python3-fritzconnection \
-    python3-swupdateclient \
-    python3-labgrid \
-    python3-labgrid-coordinator \
-    python3-labgrid-fritz \
-    python3-powerrelay \
-    python3-pyvisa \
-    python3-pyvisa-py \
-    python3-usbsdmux \
-    python3-snagboot \
+    packagegroup-labautomation-base \
+    packagegroup-labautomation-labgrid \
+    packagegroup-labautomation-power \
+    packagegroup-labautomation-flashing \
+    packagegroup-labautomation-hardware \
+    packagegroup-labautomation-instruments \
+    packagegroup-labautomation-protocols \
+    packagegroup-labautomation-robotframework \
+    packagegroup-labautomation-mcp \
+    packagegroup-labautomation-ci \
+    packagegroup-labautomation-containers \
+    packagegroup-labautomation-servers \
+    packagegroup-labautomation-remote-access \
+    packagegroup-labautomation-network \
+    packagegroup-labautomation-debug \
 "
