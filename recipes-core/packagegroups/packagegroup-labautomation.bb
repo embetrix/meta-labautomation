@@ -14,6 +14,8 @@ RDEPENDS:${PN} = " \
     python3-labgrid-coordinator \
     python3-labgrid-fritz \
     python3-powerrelay \
+    python3-pyvisa \
+    python3-pyvisa-py \
     python3-usbsdmux \
     python3-snagboot \
 "
