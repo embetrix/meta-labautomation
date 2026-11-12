@@ -4,7 +4,12 @@ LICENSE = "MIT"
 inherit packagegroup
 
 RDEPENDS:${PN} = " \
-    github-runner \
     gitlab-runner \
     jenkins-agent \
 "
+
+# Github runner is huuuuge !! 
+# disable it for now
+# RDEPENDS:${PN} = " \
+#     github-runner \
+# "
