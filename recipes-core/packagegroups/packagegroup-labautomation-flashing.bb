@@ -7,6 +7,7 @@ RDEPENDS:${PN} = " \
     openocd \
     dfu-util \
     uuu \
+    stm32flash \
     python3-snagboot \
     bmap-writer \
     bmaptool \
