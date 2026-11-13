@@ -47,7 +47,7 @@ Replace `<MACHINE>` with your board's Yocto machine name. Its BSP layer must be 
 KAS_MACHINE='<MACHINE>' kas build kas/kas-labautomation.yml
 ```
 
-For Raspberry Pi 5, use the provided configuration:
+For Raspberry Pi 4/5, use the provided configuration:
 
 ```sh
 kas build kas/kas-labautomation-rpi.yml
