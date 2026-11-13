@@ -5,7 +5,6 @@ inherit packagegroup
 
 RDEPENDS:${PN} = " \
     packagegroup-labautomation-base \
-    packagegroup-labautomation-labgrid \
     packagegroup-labautomation-power \
     packagegroup-labautomation-flashing \
     packagegroup-labautomation-hardware \
