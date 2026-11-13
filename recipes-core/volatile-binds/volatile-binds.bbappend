@@ -1,5 +1,4 @@
-# Keep container storage, runner and labgrid state/configuration, uploads and SSH keys
-# on the persistent data partition.
+# Keep container storage, runner settings and SSH keys on the data partition
 VOLATILE_BINDS:append = "\
 ${localstatedir}/data${localstatedir}/lib/docker ${localstatedir}/lib/docker\n\
 ${localstatedir}/data${localstatedir}/lib/containerd ${localstatedir}/lib/containerd\n\
@@ -7,15 +6,13 @@ ${localstatedir}/data${localstatedir}/lib/github-runner /opt/github-runner\n\
 ${localstatedir}/data${localstatedir}/lib/gitlab-runner ${localstatedir}/lib/gitlab-runner\n\
 ${localstatedir}/data${sysconfdir}/gitlab-runner ${sysconfdir}/gitlab-runner\n\
 ${localstatedir}/data${sysconfdir}/jenkins-agent ${sysconfdir}/jenkins-agent\n\
-${localstatedir}/data${sysconfdir}/labgrid-dashboard ${sysconfdir}/labgrid-dashboard\n\
-${localstatedir}/data${localstatedir}/lib/private/labgrid-coordinator ${localstatedir}/lib/private/labgrid-coordinator\n\
-${localstatedir}/data${localstatedir}/cache/labgrid ${localstatedir}/cache/labgrid\n\
-${localstatedir}/data${sysconfdir}/labgrid ${sysconfdir}/labgrid\n\
 ${localstatedir}/data/home/labautomation /home/labautomation\n\
 "
 
+LABAUTOMATION_BIND_DIRS = "lib/docker lib/containerd lib/github-runner lib/gitlab-runner"
+
 do_compile:append() {
-    for path in lib/docker lib/containerd lib/github-runner lib/gitlab-runner lib/private/labgrid-coordinator cache/labgrid; do
+    for path in ${LABAUTOMATION_BIND_DIRS}; do
         parent=${path%%/*}
         name=$(echo "$path" | tr / -)
 
