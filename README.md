@@ -1,10 +1,19 @@
 # meta-labautomation
 
-<img src="img/labautomation.png" alt="Lab automation logo" width="400">
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-OpenEmbedded/Yocto layer for building a Linux controller for embedded testing labs. It brings together tools to flash boards, control power, access serial consoles, work with test instruments and run automated tests.
+<img src="img/labautomation.png" alt="Lab automation logo" width="200">
 
-It includes Robot Framework, CI runners and agents, container services and MCP servers. The MCP servers enable AI automation by connecting AI assistants to lab tools for device control, serial communication and test execution. Labgrid integration adds shared device control and a web dashboard. Packages are grouped by purpose so you can choose what your lab needs.
+OpenEmbedded/Yocto layer for building a Linux controller for lab automation and hardware-in-the-loop (HIL) testing.
+
+## Use cases
+
+- Automated board flashing and testing
+- Hardware-in-the-loop (HIL) testing
+- CI/CD pipelines with real hardware
+- Remote lab access and device control
+- Embedded device security testing
+- AI-assisted lab automation
 
 <img src="img/labautomation-setup.png" alt="Lab automation controller connected to a DUT, remote CI and AI development and test agents through MCP" width="1000">
 
@@ -36,7 +45,8 @@ It includes Robot Framework, CI runners and agents, container services and MCP s
       <td>Power control</td>
       <td>
         <a href="https://www.shelly.com/collections/smart-plugs">Shelly</a> ·
-        <a href="https://fritz.com/en/collections/smart-home">FRITZ!Box</a>
+        <a href="https://fritz.com/en/collections/smart-home">FRITZ!Box</a> ·
+        <a href="https://github.com/prevas-dk/labgrid-powerrelay">GPIO relays</a>
       </td>
     </tr>
     <tr>
@@ -56,11 +66,18 @@ It includes Robot Framework, CI runners and agents, container services and MCP s
       </td>
     </tr>
     <tr>
-      <td>Security</td>
+      <td>Penetration testing</td>
       <td>
         <a href="https://nmap.org/">Nmap</a> ·
         <a href="https://scapy.net/">Scapy</a> ·
         <a href="https://www.tcpdump.org/">tcpdump</a> ·
+        <a href="https://github.com/Ettercap/ettercap">Ettercap</a> ·
+        <a href="https://tcpreplay.appneta.com/">tcpreplay</a>
+      </td>
+    </tr>
+    <tr>
+      <td>VPN</td>
+      <td>
         <a href="https://openvpn.net/">OpenVPN</a> ·
         <a href="https://tailscale.com/">Tailscale</a> ·
         <a href="https://www.wireguard.com/">WireGuard</a>
@@ -115,6 +132,18 @@ For Raspberry Pi 4/5, use the provided configuration:
 kas build kas/kas-labautomation-rpi.yml
 ```
 
+### Image output and flashing
+
+Images are saved in `build/tmp/deploy/images/<MACHINE>/`. Flash the Raspberry Pi 5 image with bmaptool:
+
+```sh
+sudo bmaptool copy \
+    build/tmp/deploy/images/raspberrypi5/labautomation-image-raspberrypi5.rootfs.wic.bz2 \
+    /dev/sdX
+```
+
+Keep the matching `.wic.bmap` beside the image. Unmount the target partitions and replace `/dev/sdX` with the whole target device. This overwrites the drive.
+
 ## Disclaimer
 
 This project is provided "as is", without warranty. See [LICENSE](LICENSE) for details. Included third-party software has its own licenses.
@@ -123,4 +152,4 @@ Third-party names, logos and trademarks belong to their respective owners. Their
 
 ## Commercial support
 
-For commercial support with different hardware platforms, custom development, CI/CD integration, AI agents, automated testing and security, contact Embetrix Embedded Systems Solutions at [info@embetrix.com](mailto:info@embetrix.com).
+For commercial support with different hardware platforms, custom development, CI/CD integration, AI agents, automated testing, security and penetration testing, contact Embetrix Embedded Systems Solutions at [info@embetrix.com](mailto:info@embetrix.com).
