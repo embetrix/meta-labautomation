@@ -13,6 +13,7 @@ DEPENDS += "python3-setuptools-scm-native"
 
 RDEPENDS:${PN} += " \
     libusb1 \
+    linux-gpib \
     python3-core \
     python3-ctypes \
     python3-io \
