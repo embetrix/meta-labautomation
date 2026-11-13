@@ -1,5 +1,5 @@
 # meta-labautomation
-
+[![BitBake parse](https://github.com/embetrix/meta-labautomation/actions/workflows/bitbake-parse.yml/badge.svg?branch=wrynose)](https://github.com/embetrix/meta-labautomation/actions/workflows/bitbake-parse.yml?query=branch%3Awrynose)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 <img src="img/labautomation.png" alt="Lab automation logo" width="200">

@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: MIT
+name: Build CI container
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  container:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build and export container
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          platforms: linux/amd64
+          tags: labautomation-ci:check
+          outputs: type=docker,dest=${{ runner.temp }}/labautomation-ci.tar
+          cache-from: type=gha,scope=ci-container
+          cache-to: type=gha,scope=ci-container,mode=max
+
+      - name: Share container with parser jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-container
+          path: ${{ runner.temp }}/labautomation-ci.tar
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error

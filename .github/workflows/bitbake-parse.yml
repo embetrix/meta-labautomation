@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: MIT
+name: BitBake parse
+
+on:
+  push:
+    branches: [wrynose]
+    paths-ignore:
+      - '**/*.md'
+      - LICENSE
+  pull_request:
+    branches: [wrynose]
+    paths-ignore:
+      - '**/*.md'
+      - LICENSE
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bitbake-parse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  container:
+    uses: ./.github/workflows/container.yml
+
+  parse:
+    needs: container
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        machine:
+          - qemux86-64
+    name: Parse ${{ matrix.machine }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ci-container
+          path: ${{ runner.temp }}
+
+      - name: Load CI container
+        run: docker load --input "$RUNNER_TEMP/labautomation-ci.tar"
+
+      - name: Parse recipes without building
+        env:
+          KAS_MACHINE: ${{ matrix.machine }}
+          KAS_CLONE_DEPTH: '1'
+        run: |
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --volume "$GITHUB_WORKSPACE:/work" \
+            --workdir /work \
+            --env KAS_MACHINE \
+            --env KAS_CLONE_DEPTH \
+            labautomation-ci:check bash -euc '
+              kas shell kas/kas-labautomation.yml \
+                --command "bitbake --parse-only labautomation-image"
+            '
