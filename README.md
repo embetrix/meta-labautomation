@@ -4,7 +4,7 @@ OpenEmbedded/Yocto layer for building a Linux controller for embedded testing la
 
 It includes Robot Framework, CI runners and agents, container services and MCP servers. The MCP servers enable AI automation by connecting AI assistants to lab tools for device control, serial communication and test execution. Optional Labgrid integration adds shared device control and a web dashboard. Packages are grouped by purpose so you can choose what your lab needs.
 
-<img src="img/labautomation.png" alt="Lab automation" width="400">
+<img src="img/labautomation-setup.png" alt="Lab automation controller connected to a DUT, remote CI and AI development and test agents through MCP" width="1000">
 
 ## Included tools
 
