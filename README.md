@@ -115,13 +115,12 @@ For Raspberry Pi 4/5, use the provided configuration:
 kas build kas/kas-labautomation-rpi.yml
 ```
 
-### Secure Raspberry Pi
+## Disclaimer
 
-The secure build uses [meta-raspberrypi-secure](https://github.com/embetrix/meta-raspberrypi-secure) for boot signing, secure storage and SWUpdate bundles. It defaults to Raspberry Pi 5 and the `dev` security profile.
+This project is provided "as is", without warranty. See [LICENSE](LICENSE) for details. Included third-party software has its own licenses.
 
-Follow that layer's signing key setup and save the generated kas fragment as `kas/kas-signing-keys.yml`, then build:
+Third-party names, logos and trademarks belong to their respective owners. Their use here identifies supported tools and does not imply endorsement or affiliation.
 
-```sh
-KAS_MACHINE=raspberrypi5 SECURITY_PROFILE=dev \
-    kas build kas/kas-labautomation-rpi-secure.yml:kas/kas-signing-keys.yml
-```
+## Commercial support
+
+For commercial support with different hardware platforms, custom development, CI/CD integration, AI agents, automated testing and security, contact Embetrix Embedded Systems Solutions at [info@embetrix.com](mailto:info@embetrix.com).
