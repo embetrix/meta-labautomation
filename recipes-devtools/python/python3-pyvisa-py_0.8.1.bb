@@ -19,9 +19,11 @@ RDEPENDS:${PN} += " \
     python3-logging \
     python3-math \
     python3-netclient \
+    python3-psutil \
     python3-pyserial \
     python3-pyusb \
     python3-pyvisa (>= 1.15.0) \
     python3-threading \
     python3-typing-extensions \
+    python3-zeroconf \
 "
