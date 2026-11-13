@@ -6,6 +6,22 @@ It includes Robot Framework, CI agents, container services and MCP servers. Opti
 
 <img src="img/labautomation.png" alt="Lab automation" width="400">
 
+## Included tools
+
+<!-- Labgrid and PyVISA logos come from their projects, other logos from https://simpleicons.org -->
+<table>
+  <tr>
+    <td align="center"><a href="https://labgrid.readthedocs.io/"><img src="img/logos/labgrid.png" alt="Labgrid logo" height="40"><br>Labgrid</a></td>
+    <td align="center"><a href="https://robotframework.org/"><img src="img/logos/robotframework.svg" alt="Robot Framework logo" height="40"><br>Robot Framework</a></td>
+    <td align="center"><a href="https://www.docker.com/"><img src="img/logos/docker.svg" alt="Docker logo" height="40"><br>Docker</a></td>
+    <td align="center"><a href="https://www.jenkins.io/"><img src="img/logos/jenkins.svg" alt="Jenkins logo" height="40"><br>Jenkins</a></td>
+    <td align="center"><a href="https://about.gitlab.com/"><img src="img/logos/gitlab.svg" alt="GitLab logo" height="40"><br>GitLab</a></td>
+    <td align="center"><a href="https://github.com/"><img src="img/logos/github.svg" alt="GitHub logo" height="40"><br>GitHub</a></td>
+    <td align="center"><a href="https://modelcontextprotocol.io/"><img src="img/logos/mcp.svg" alt="Model Context Protocol logo" height="40"><br>MCP</a></td>
+    <td align="center"><a href="https://pyvisa.readthedocs.io/"><img src="img/logos/pyvisa.jpg" alt="PyVISA logo" height="40"><br>PyVISA</a></td>
+  </tr>
+</table>
+
 ## Build
 
 ### QEMU
