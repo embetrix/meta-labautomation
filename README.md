@@ -10,6 +10,7 @@ OpenEmbedded/Yocto layer for building a Linux controller for lab automation and 
 
 - Automated board flashing and testing
 - Hardware-in-the-loop (HIL) testing
+- Lab instrument control and automated measurements
 - CI/CD pipelines with real hardware
 - Remote lab access and device control
 - Embedded device security testing
@@ -17,7 +18,7 @@ OpenEmbedded/Yocto layer for building a Linux controller for lab automation and 
 
 <img src="img/labautomation-setup.png" alt="Lab automation controller connected to a DUT, remote CI and AI development and test agents through MCP" width="1000">
 
-## Supported tools and frameworks
+## Supported tools and frameworks\*
 
 <table>
   <thead>
@@ -100,6 +101,8 @@ OpenEmbedded/Yocto layer for building a Linux controller for lab automation and 
     </tr>
   </tbody>
 </table>
+
+\* This list is not exhaustive
 
 ## Build
 
